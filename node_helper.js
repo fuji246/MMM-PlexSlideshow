@@ -63,7 +63,7 @@ module.exports = NodeHelper.create({
         hostname: config.plex.hostname !==null ? config.plex.hostname : "localhost",
         port: config.plex.port ? config.plex.port  : 32400,
         username: config.plex.username,
-        password: config.plex.password
+        token: config.plex.token
       };
 
       console.log("Create PLEX Client : ", options);
@@ -77,14 +77,19 @@ module.exports = NodeHelper.create({
       // Get list of playlists
       api.query('/playlists').then(function (results2) {
 
+	// http://192.168.1.200:32400/playlists?X-Plex-Token=z-o5r3Cw8WGupSCuP4UW
         // Find playlist of photos which is Favorites
         var r2 = results2.MediaContainer.Metadata.find(x => { return (x.specialPlaylistType == "favorites" && x.playlistType == "photo"); });
 
         // Get all items in playlist
         api.query(r2.key).then(function (results3) {
+          // http://192.168.1.200:32400/playlists/47465/items?X-Plex-Token=z-o5r3Cw8WGupSCuP4UW
           (results3.MediaContainer.Metadata).forEach(e => {
             // Get Url to each item and save
-            var url = "http://" + config.plex.hostname + ":" + config.plex.port + e.Media[0].Part[0].key + "?X-Plex-Token=" + api.authToken;
+            // http://192.168.1.200:32400/library/parts/43583/1579636914/file.jpg?X-Plex-Token=z-o5r3Cw8WGupSCuP4UW
+            //var url = "http://" + config.plex.hostname + ":" + config.plex.port + e.Media[0].Part[0].key + "?X-Plex-Token=" + api.authToken;
+	    // http://192.168.1.200:32400/photo/:/transcode?width=1000&height=1000&minSize=1&upscale=1&url=/library/parts/42696/1584123223/file.jpg&X-Plex-Token=z-o5r3Cw8WGupSCuP4UW
+            var url = "http://" + config.plex.hostname + ":" + config.plex.port + "/photo/:/transcode?width=1000&height=1000&minSize=1&upscale=1&url=" + encodeURI(e.Media[0].Part[0].key) + "&X-Plex-Token=" + api.authToken;
             console.log(url);
             imageList.push(url);
           });

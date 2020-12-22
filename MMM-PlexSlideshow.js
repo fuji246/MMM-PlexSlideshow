@@ -20,7 +20,7 @@ Module.register('MMM-PlexSlideshow', {
       hostname:"localhost",
       port: 32400,
       username:"",
-      password:"",
+      token:"",
     },
     // the speed at which to switch between images, in milliseconds
     slideshowSpeed: 10 * 1000,
@@ -31,7 +31,7 @@ Module.register('MMM-PlexSlideshow', {
     // the sizing of the background image
     // cover: Resize the background image to cover the entire container, even if it has to stretch the image or cut a little bit off one of the edges
     // contain: Resize the background image to make sure the image is fully visible
-    backgroundSize: 'cover', // cover or contain
+    backgroundSize: 'contain', // cover or contain
     // transition from one image to the other (may be a bit choppy on slower devices, or if the images are too big)
     transitionImages: false,
     // the gradient to make the text more visible
@@ -55,8 +55,8 @@ Module.register('MMM-PlexSlideshow', {
     // add identifier to the config
     this.config.identifier = this.identifier;
     // set no error
-    this.errorMessage = null;
-    if (this.config.plex.hostname.length == 0 || this.config.plex.username.length==0 || this.config.plex.password.length==0) {
+    this.errorMessage = null
+    if (this.config.plex.hostname.length == 0 || this.config.plex.username.length==0 || this.config.plex.token.length==0) {
       this.errorMessage =
         'MMM-PlexSlideshow: Missing required parameter.';
     } else {
@@ -166,6 +166,7 @@ Module.register('MMM-PlexSlideshow', {
   updateImage: function() {
     if (this.imageList && this.imageList.length) {
       if (this.imageIndex < this.imageList.length) {
+        this.imageIndex = Math.floor(Math.random() * this.imageList.length)
         if (this.config.transitionImages) {
           this.swapDivs();
         }
@@ -181,8 +182,9 @@ Module.register('MMM-PlexSlideshow', {
           div2.style.opacity = '0';
         };
         image.src = encodeURI(this.imageList[this.imageIndex]);
+        Log.log("play " + this.imageIndex + " in " + this.imageList.length + " src: " + image.src)
         this.sendNotification('BACKGROUNDSLIDESHOW_IMAGE_UPDATED', {url:image.src});
-        this.imageIndex += 1;
+        //this.imageIndex += 1;
       } else {
         this.imageIndex = 0;
         this.updateImageList();
